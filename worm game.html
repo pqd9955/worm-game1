@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Worm Game</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const SCREEN_WIDTH = 500;
+        const SCREEN_HEIGHT = 500;
+        const CELL_SIZE = 10;
+        const BLACK = "#000000";
+        const GREEN = "#00FF00";
+    
+        class Worm {
+            constructor() {
+                this.positions = [
+                    { x: 5, y: 5 },
+                    { x: 4, y: 5 },
+                    { x: 3, y: 5 },
+                    { x: 2, y: 5 },
+                    { x: 1, y: 5 }
+                ];
+                this.direction = "right";
+            }
+            
+            move() {
+                let head = this.positions[0];
+                let newHead = { x: head.x, y: head.y };
+                
+                if (this.direction == "up") {
+                    newHead.y -= 1;
+                } else if (this.direction == "down") {
+                    newHead.y += 1;
+                } else if (this.direction == "left") {
+                    newHead.x -= 1;
+                } else if (this.direction == "right") {
+                    newHead.x += 1;
+                }
+                
+                this.positions.unshift(newHead);
+                this.positions.pop();
+            }
+            
+            changeDirection(direction) {
+                if (direction == "up" && this.direction != "down") {
+                    this.direction = "up";
+                } else if (direction == "down" && this.direction != "up") {
+                    this.direction = "down";
+                } else if (direction == "left" && this.direction != "right") {
+                    this.direction = "left";
+                } else if (direction == "right" && this.direction != "left") {
+                    this.direction = "right";
+                }
+            }
+            
+            draw(ctx) {
+                for (let i = 0; i < this.positions.length; i++) {
+                    let position = this.positions[i];
+                    ctx.fillStyle = GREEN;
+                    ctx.fillRect(position.x * CELL_SIZE, position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+            }
+        }
+        
+        class Food {
+            constructor() {
+                this.position = {
+                    x: Math.floor(Math.random() * SCREEN_WIDTH / CELL_SIZE),
+                    y: Math.floor(Math.random() * SCREEN_HEIGHT / CELL_SIZE)
+                };
+            }
+            
+            draw(ctx) {
+                ctx.fillStyle = GREEN;
+                ctx.fillRect(this.position.x * CELL_SIZE, this.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            }
+        }
+        
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        
+        let worm = new Worm();
+        let food = new Food();
+        
+        function gameLoop() {
+            // 이벤트 처리
+            document.addEventListener("keydown", event => {
+                if (event.key == "ArrowUp") {
+                    worm.changeDirection("up");
+                } else if (event.key == "ArrowDown") {
+                    worm.changeDirection("down");
+                } else if (event.key == "ArrowLeft") {
+                    worm.changeDirection("left");
+                } else if (event.key == "ArrowRight") { // 오른쪽 방향
